@@ -41,7 +41,7 @@ class PollPoller : public Poller
                           ChannelList* activeChannels) const;
 
   typedef std::vector<struct pollfd> PollFdList;
-  PollFdList pollfds_;
+  PollFdList pollfds_;//不能一边遍历pollfds,一边调用Channel::handleEvent,因为后者会添加或者删除Channel，从而造成pollfds_的大小在遍历期间改变
 };
 
 }  // namespace net

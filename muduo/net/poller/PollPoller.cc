@@ -104,7 +104,7 @@ void PollPoller::updateChannel(Channel* channel)
     if (channel->isNoneEvent())
     {
       // ignore this pollfd
-      pfd.fd = -channel->fd()-1;
+      pfd.fd = -channel->fd()-1;//文件描述符从0开始，减一是为了兼容0，因为0的相反数还是0
     }
   }
 }
@@ -129,7 +129,7 @@ void PollPoller::removeChannel(Channel* channel)
   else
   {
     int channelAtEnd = pollfds_.back().fd;
-    iter_swap(pollfds_.begin()+idx, pollfds_.end()-1);
+    iter_swap(pollfds_.begin()+idx, pollfds_.end()-1); //高效删除数组中一个元素
     if (channelAtEnd < 0)
     {
       channelAtEnd = -channelAtEnd-1;

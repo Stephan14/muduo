@@ -28,6 +28,7 @@ class Channel;
 /// Base class for IO Multiplexing
 ///
 /// This class doesn't own the Channel objects.
+// poller是IO 多路复用机制的封装，支持poll和epoll多种io多路复用机制
 class Poller : noncopyable
 {
  public:

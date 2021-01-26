@@ -36,6 +36,7 @@ class TimerQueue;
 /// Reactor, at most one per thread.
 ///
 /// This is an interface class, so don't expose too much details.
+// EventLoop对象生命周期和所属的线程一样长，不需要为heap对象
 class EventLoop : noncopyable
 {
  public:

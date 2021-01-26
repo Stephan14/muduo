@@ -32,7 +32,7 @@ const int kPollTimeMs = 10000;
 
 int createEventfd()
 {
-  int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+  int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);//https://zhuanlan.zhihu.com/p/40572954
   if (evtfd < 0)
   {
     LOG_SYSERR << "Failed in eventfd";
@@ -71,7 +71,7 @@ EventLoop::EventLoop()
     poller_(Poller::newDefaultPoller(this)),
     timerQueue_(new TimerQueue(this)),
     wakeupFd_(createEventfd()),
-    wakeupChannel_(new Channel(this, wakeupFd_)),
+    wakeupChannel_(new Channel(this, wakeupFd_)),//初始化列表中可以使用前一个参数
     currentActiveChannel_(NULL)
 {
   LOG_DEBUG << "EventLoop created " << this << " in thread " << threadId_;
@@ -82,7 +82,7 @@ EventLoop::EventLoop()
   }
   else
   {
-    t_loopInThisThread = this;
+    t_loopInThisThread = this;//在构造函数中可以直接使用this指针
   }
   wakeupChannel_->setReadCallback(
       std::bind(&EventLoop::handleRead, this));
@@ -139,7 +139,7 @@ void EventLoop::quit()
   // There is a chance that loop() just executes while(!quit_) and exits,
   // then EventLoop destructs, then we are accessing an invalid object.
   // Can be fixed using mutex_ in both places.
-  if (!isInLoopThread())
+  if (!isInLoopThread())//如果在非当前io线程调用quit(),可能延长数秒，可以通过唤醒eventloop缩小延迟
   {
     wakeup();
   }
