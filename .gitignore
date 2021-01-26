@@ -1,4 +1,6 @@
 *.swp
 bazel-*
 *.cmake
+*CMakeFiles/
+*Makefile
 compile_commands.json
