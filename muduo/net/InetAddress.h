@@ -27,7 +27,7 @@ const struct sockaddr* sockaddr_cast(const struct sockaddr_in6* addr);
 
 ///
 /// Wrapper of sockaddr_in.
-///
+/// 可以自动转换字节序
 /// This is an POD interface class.
 class InetAddress : public muduo::copyable
 {
@@ -73,7 +73,7 @@ class InetAddress : public muduo::copyable
   void setScopeId(uint32_t scope_id);
 
  private:
-  union
+  union//联合体
   {
     struct sockaddr_in addr_;
     struct sockaddr_in6 addr6_;

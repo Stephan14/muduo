@@ -72,6 +72,11 @@ int Socket::accept(InetAddress* peeraddr)
   struct sockaddr_in6 addr;
   memZero(&addr, sizeof addr);
   int connfd = sockets::accept(sockfd_, &addr);
+  /* 3中accept策略：
+   * 1. 每次accept 一个socket
+   * 2. 不断循环accept 连接直到没有新的连接来
+   * 3. 每次accpet N个连接（适合短连接）
+   * */
   if (connfd >= 0)
   {
     peeraddr->setSockAddrInet6(addr);

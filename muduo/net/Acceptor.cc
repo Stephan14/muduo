@@ -49,7 +49,7 @@ void Acceptor::listen()
   loop_->assertInLoopThread();
   listening_ = true;
   acceptSocket_.listen();
-  acceptChannel_.enableReading();
+  acceptChannel_.enableReading();//在poller中更新fd与channel的映射关系以及事件
 }
 
 void Acceptor::handleRead()
@@ -64,7 +64,7 @@ void Acceptor::handleRead()
     // LOG_TRACE << "Accepts of " << hostport;
     if (newConnectionCallback_)
     {
-      newConnectionCallback_(connfd, peerAddr);
+      newConnectionCallback_(connfd, peerAddr);//直接将fd传递给callback,可以先创建Socket对象然后move给callback
     }
     else
     {
@@ -77,7 +77,7 @@ void Acceptor::handleRead()
     // Read the section named "The special problem of
     // accept()ing when you can't" in libev's doc.
     // By Marc Lehmann, author of libev.
-    if (errno == EMFILE)
+    if (errno == EMFILE)//解决文件描述符耗尽问题；另一种方式是poll一下看看fd是不是可写，不可以写关闭fd
     {
       ::close(idleFd_);
       idleFd_ = ::accept(acceptSocket_.fd(), NULL, NULL);
