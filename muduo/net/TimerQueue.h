@@ -54,8 +54,8 @@ class TimerQueue : noncopyable
   // FIXME: use unique_ptr<Timer> instead of raw pointers.
   // This requires heterogeneous comparison lookup (N3465) from C++14
   // so that we can find an T* in a set<unique_ptr<T>>.
-  typedef std::pair<Timestamp, Timer*> Entry;
-  typedef std::set<Entry> TimerList;
+  typedef std::pair<Timestamp, Timer*> Entry;//处理多个timer到期时间相同的情况，即使2个timer的到期时间相同，地址必定不同
+  typedef std::set<Entry> TimerList;//只有key没有value
   typedef std::pair<Timer*, int64_t> ActiveTimer;
   typedef std::set<ActiveTimer> ActiveTimerSet;
 

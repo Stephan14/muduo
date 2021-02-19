@@ -119,7 +119,7 @@ TimerId TimerQueue::addTimer(TimerCallback cb,
 {
   Timer* timer = new Timer(std::move(cb), when, interval);
   loop_->runInLoop(
-      std::bind(&TimerQueue::addTimerInLoop, this, timer));
+      std::bind(&TimerQueue::addTimerInLoop, this, timer));//只负责转发事情，提高线程安全性
   return TimerId(timer, timer->sequence());
 }
 
@@ -180,14 +180,14 @@ void TimerQueue::handleRead()
   reset(expired, now);
 }
 
-std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)
+std::vector<TimerQueue::Entry> TimerQueue::getExpired(Timestamp now)//RVO 优化
 {
   assert(timers_.size() == activeTimers_.size());
   std::vector<Entry> expired;
-  Entry sentry(now, reinterpret_cast<Timer*>(UINTPTR_MAX));
+  Entry sentry(now, reinterpret_cast<Timer*>(UINTPTR_MAX));//哨兵值
   TimerList::iterator end = timers_.lower_bound(sentry);
   assert(end == timers_.end() || now < end->first);
-  std::copy(timers_.begin(), end, back_inserter(expired));
+  std::copy(timers_.begin(), end, back_inserter(expired));//使用push_back()在容器尾端安插元素，元素排列顺序和安插顺序相同
   timers_.erase(timers_.begin(), end);
 
   for (const Entry& it : expired)

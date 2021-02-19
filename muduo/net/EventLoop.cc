@@ -145,15 +145,15 @@ void EventLoop::quit()
   }
 }
 
-void EventLoop::runInLoop(Functor cb)
+void EventLoop::runInLoop(Functor cb)//不用锁保证线程安全
 {
-  if (isInLoopThread())
+  if (isInLoopThread())//如果在io线程中调用会同步进行
   {
     cb();
   }
-  else
+  else//如果在其他线程调用，则放入队列中
   {
-    queueInLoop(std::move(cb));
+    queueInLoop(std::move(cb));//加锁
   }
 }
 
@@ -164,7 +164,7 @@ void EventLoop::queueInLoop(Functor cb)
   pendingFunctors_.push_back(std::move(cb));
   }
 
-  if (!isInLoopThread() || callingPendingFunctors_)
+  if (!isInLoopThread() || callingPendingFunctors_)//cb函数可能再次调用queueInLoop,如果不唤醒可能cb不能被及时的执行
   {
     wakeup();
   }
@@ -251,6 +251,13 @@ void EventLoop::handleRead()
   }
 }
 
+/*
+ * 如果doPendingFunctors()放到EventLoop::handleRead()中，就必须调用weakup()，这样流程就涉及三个系统调用write->poll->read。
+ * 在IO线程内注册回调函数这种情况下，其用不着花费三个系统。
+ * 因为注册回调函数这个动作本身也是被回调的，也就是说EventLoop::loop() 里面循环调用完handleEvent（）后（这时注册回调函数这个动作已完成），
+ * 就可以立马调用doPendingFunctors（）去处理回调了，省略三次系统调用时间。
+ * 讨论连接：https://blog.csdn.net/solstice/article/details/6171831
+ * */
 void EventLoop::doPendingFunctors()
 {
   std::vector<Functor> functors;
@@ -258,7 +265,7 @@ void EventLoop::doPendingFunctors()
 
   {
   MutexLockGuard lock(mutex_);
-  functors.swap(pendingFunctors_);
+  functors.swap(pendingFunctors_);//减小临界区长度同时避免死锁
   }
 
   for (const Functor& functor : functors)
