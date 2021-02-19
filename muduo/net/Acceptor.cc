@@ -79,10 +79,10 @@ void Acceptor::handleRead()
     // By Marc Lehmann, author of libev.
     if (errno == EMFILE)//解决文件描述符耗尽问题；另一种方式是poll一下看看fd是不是可写，不可以写关闭fd
     {
-      ::close(idleFd_);
-      idleFd_ = ::accept(acceptSocket_.fd(), NULL, NULL);
-      ::close(idleFd_);
-      idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+      ::close(idleFd_);//关闭空连接
+      idleFd_ = ::accept(acceptSocket_.fd(), NULL, NULL);//获取client连接
+      ::close(idleFd_);//关闭client连接
+      idleFd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);//站住空闲连接
     }
   }
 }
