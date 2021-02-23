@@ -47,7 +47,7 @@ class Acceptor : noncopyable
   // bool listenning() const { return listening(); }
 
  private:
-  void handleRead();
+  void handleRead();//只需要注册handleRead回调，在回调内部调用NewConnectionCallback
 
   EventLoop* loop_;
   Socket acceptSocket_;

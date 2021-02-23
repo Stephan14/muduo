@@ -60,7 +60,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
       std::bind(&TcpConnection::handleError, this));
   LOG_DEBUG << "TcpConnection::ctor[" <<  name_ << "] at " << this
             << " fd=" << sockfd;
-  socket_->setKeepAlive(true);
+  socket_->setKeepAlive(true);//探测对端是不是活着的,如果是死的怎么办？
 }
 
 TcpConnection::~TcpConnection()

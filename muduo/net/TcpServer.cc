@@ -26,7 +26,7 @@ TcpServer::TcpServer(EventLoop* loop,
   : loop_(CHECK_NOTNULL(loop)),
     ipPort_(listenAddr.toIpPort()),
     name_(nameArg),
-    acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),
+    acceptor_(new Acceptor(loop, listenAddr, option == kReusePort)),//依赖是单向的，TcpServer会用到Acceptor，但是Acceptor不会知道TcpServer的存在
     threadPool_(new EventLoopThreadPool(loop, name_)),
     connectionCallback_(defaultConnectionCallback),
     messageCallback_(defaultMessageCallback),
@@ -87,20 +87,20 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
                                           connName,
                                           sockfd,
                                           localAddr,
-                                          peerAddr));
+                                          peerAddr));//make_shared和new的区别
   connections_[connName] = conn;
-  conn->setConnectionCallback(connectionCallback_);
-  conn->setMessageCallback(messageCallback_);
-  conn->setWriteCompleteCallback(writeCompleteCallback_);
+  conn->setConnectionCallback(connectionCallback_);//将用户设置的callback传递给TcpConnection
+  conn->setMessageCallback(messageCallback_);//将用户设置的callback传递给TcpConnection
+  conn->setWriteCompleteCallback(writeCompleteCallback_);//将用户设置的callback传递给TcpConnection
   conn->setCloseCallback(
       std::bind(&TcpServer::removeConnection, this, _1)); // FIXME: unsafe
-  ioLoop->runInLoop(std::bind(&TcpConnection::connectEstablished, conn));
+  ioLoop->runInLoop(std::bind(&TcpConnection::connectEstablished, conn));//调用用户的回调
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr& conn)
 {
   // FIXME: unsafe
-  loop_->runInLoop(std::bind(&TcpServer::removeConnectionInLoop, this, conn));
+  loop_->runInLoop(std::bind(&TcpServer::removeConnectionInLoop, this, conn));//只在io线程中执行删除操作
 }
 
 void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)

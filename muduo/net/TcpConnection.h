@@ -40,6 +40,10 @@ class Socket;
 /// This is an interface class, so don't expose too much details.
 class TcpConnection : noncopyable,
                       public std::enable_shared_from_this<TcpConnection>
+/* 若一个类T继承std::enable_shared_from_this<T> ，则会为该类T提供成员函数：shared_from_this。
+ * 当T类型对象t被一个为名为pt的std::shared_ptr<T>类对象管理时，调用T::shared_from_this成员函数，
+ * 将会返回一个新的std::shared_ptr<T>对象，它与pt共享t的所有权
+ * */
 {
  public:
   /// Constructs a TcpConnection with a connected sockfd
