@@ -414,7 +414,7 @@ void TcpConnection::handleClose()
   setState(kDisconnected);
   channel_->disableAll();
 
-  TcpConnectionPtr guardThis(shared_from_this());
+  TcpConnectionPtr guardThis(shared_from_this());//避免内存泄漏 https://blog.csdn.net/applemonkey11/article/details/79031615
   connectionCallback_(guardThis);
   // must be the last line
   closeCallback_(guardThis);

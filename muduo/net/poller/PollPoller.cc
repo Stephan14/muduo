@@ -135,7 +135,7 @@ void PollPoller::removeChannel(Channel* channel)
       channelAtEnd = -channelAtEnd-1;
     }
     channels_[channelAtEnd]->set_index(idx);
-    pollfds_.pop_back();
+    pollfds_.pop_back();//删除数组的元素的复杂度为O(1)
   }
 }
 

@@ -93,8 +93,9 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr)
   conn->setMessageCallback(messageCallback_);//将用户设置的callback传递给TcpConnection
   conn->setWriteCompleteCallback(writeCompleteCallback_);//将用户设置的callback传递给TcpConnection
   conn->setCloseCallback(
-      std::bind(&TcpServer::removeConnection, this, _1)); // FIXME: unsafe
+      std::bind(&TcpServer::removeConnection, this, _1)); // FIXME: unsafe 通过this指针简历TcpServer和TcpConnectioin之间的联系
   ioLoop->runInLoop(std::bind(&TcpConnection::connectEstablished, conn));//调用用户的回调
+  //注意std::bind的使用姿势不同，一个有this指针，一个没有
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr& conn)
@@ -113,6 +114,6 @@ void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn)
   assert(n == 1);
   EventLoop* ioLoop = conn->getLoop();
   ioLoop->queueInLoop(
-      std::bind(&TcpConnection::connectDestroyed, conn));
+      std::bind(&TcpConnection::connectDestroyed, conn));//放到io线程中执行，否则改函数结束，TcpConnection对象释放内存，导致chanel析构
 }
 
