@@ -409,7 +409,7 @@ class Buffer : public muduo::copyable
   }
 
  private:
-  std::vector<char> buffer_;
+  std::vector<char> buffer_;//使用vector保存char
   size_t readerIndex_;
   size_t writerIndex_;
 

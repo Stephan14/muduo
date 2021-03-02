@@ -69,7 +69,7 @@ typedef std::function<void (const TcpConnectionPtr&, size_t)> HighWaterMarkCallb
 // the data has been read to (buf, len)
 typedef std::function<void (const TcpConnectionPtr&,
                             Buffer*,
-                            Timestamp)> MessageCallback;
+                            Timestamp)> MessageCallback;//TimeStamp为消息到达时刻，在调read之前
 
 void defaultConnectionCallback(const TcpConnectionPtr& conn);
 void defaultMessageCallback(const TcpConnectionPtr& conn,
