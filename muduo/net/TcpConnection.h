@@ -146,8 +146,8 @@ class TcpConnection : noncopyable,
   const InetAddress peerAddr_;
   ConnectionCallback connectionCallback_;
   MessageCallback messageCallback_;
-  WriteCompleteCallback writeCompleteCallback_;
-  HighWaterMarkCallback highWaterMarkCallback_;
+  WriteCompleteCallback writeCompleteCallback_;//缓存数据空时恢复写socket中的数据
+  HighWaterMarkCallback highWaterMarkCallback_;//缓存数据到达上线停止写socket中的数据
   CloseCallback closeCallback_;
   size_t highWaterMark_;
   Buffer inputBuffer_;

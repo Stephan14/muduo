@@ -91,6 +91,8 @@ void Socket::shutdownWrite()
 
 void Socket::setTcpNoDelay(bool on)
 {
+  // Nagle算法就是为了尽可能发送大块数据，避免网络中充斥着许多小数据块
+  // 禁用Nagle算法，避免连续发报出现延迟
   int optval = on ? 1 : 0;
   ::setsockopt(sockfd_, IPPROTO_TCP, TCP_NODELAY,
                &optval, static_cast<socklen_t>(sizeof optval));

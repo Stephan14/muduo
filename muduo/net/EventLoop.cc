@@ -49,6 +49,14 @@ class IgnoreSigPipe
   {
     ::signal(SIGPIPE, SIG_IGN);
     // LOG_TRACE << "Ignore SIGPIPE";
+    // 对一个已经收到FIN包的socket调用read方法,
+    // 如果接收缓冲已空, 则返回0, 这就是常说的表示连接关闭.
+    // 但第一次对其调用write方法时, 如果发送缓冲没问题,
+    // 会返回正确写入(发送). 但发送的报文会导致对端发送RST报文,
+    // 因为对端的socket已经调用了close, 完全关闭, 既不发送,
+    // 也不接收数据. 所以, 第二次调用write方法(假设在收到RST之后),
+    // 会生成SIGPIPE信号, 导致进程退出
+    // 为了避免进程退出, 可以捕获SIGPIPE信号, 或者忽略它, 给它设置SIG_IGN信号处理函数:
   }
 };
 #pragma GCC diagnostic error "-Wold-style-cast"
